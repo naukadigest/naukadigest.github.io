@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% set is_issue = true %}
+{% block content %}
+<div class="wrap issues">
+  {% if count %}
+  <p class="issues__intro">Все номера газеты по порядку — от первого к сегодняшнему. Нажмите на номер, чтобы открыть его.</p>
+  {% for label, lst in months %}
+  <section class="arch">
+    <h2 class="arch__month">{{ label }}</h2>
+    <ol class="arch__list">
+      {% for i in lst %}
+      <li{% if i is sameas latest %} class="is-latest"{% endif %}>
+        <a href="{{ base }}{{ i.url }}">
+          <span class="arch__no">№{{ i.number }}</span>
+          <span class="arch__date">{{ i.date|ru_date(False) }}<small>{{ i.date|weekday }}</small></span>
+          <span class="arch__hl">{% if i is sameas latest %}<b class="arch__new">Свежий номер</b> {% endif %}{{ i.headline_text|join(' · ') }}</span>
+        </a>
+      </li>
+      {% endfor %}
+    </ol>
+  </section>
+  {% endfor %}
+  {% else %}
+  <header class="pagehead"><h1>Первый номер скоро выйдет</h1></header>
+  {% endif %}
+</div>
+{% endblock %}

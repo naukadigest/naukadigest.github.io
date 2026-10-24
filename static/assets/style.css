@@ -319,3 +319,18 @@ img { max-width: 100%; height: auto; }
 @media (prefers-color-scheme: dark) {
   .issue .rub--first .story:first-child .story__text > p:first-child::first-letter { color: var(--accent); }
 }
+
+/* ===== Главная газеты: список номеров ===== */
+.issues { padding-top: 22px; padding-bottom: 30px; }
+.issues__intro { margin: 0 0 6px; color: var(--ink-2); font-style: italic; }
+.arch__list li.is-latest { background: var(--box); border: 2px solid var(--accent); border-bottom-width: 2px; margin-top: 6px; }
+.arch__list li.is-latest a { padding-left: 12px; padding-right: 12px; }
+.arch__new {
+  display: inline-block; margin-right: 6px; vertical-align: 2px;
+  background: var(--accent); color: #fff;
+  font: 700 12px/1 var(--sans); letter-spacing: .06em; text-transform: uppercase;
+  padding: 5px 7px 4px; border-radius: 2px;
+}
+@media (max-width: 560px) {
+  .arch__hl { display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
+}

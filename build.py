@@ -7,6 +7,7 @@
 """
 import argparse
 import datetime as dt
+import html as html_lib
 import re
 import shutil
 from collections import OrderedDict
@@ -123,7 +124,7 @@ def read_issue(path, site, rubrics_by_slug, statuses):
         url=f"/issues/{slug}/",
         number=number,
         headline=[md_inline(h) for h in (meta.get("headline") or [])],
-        headline_text=[re.sub(r"<[^>]+>", "", str(md_inline(h))) for h in (meta.get("headline") or [])],
+        headline_text=[html_lib.unescape(re.sub(r"<[^>]+>", "", str(md_inline(h)))) for h in (meta.get("headline") or [])],
         sections=sections,
         items=items,
         count=len(items),
@@ -170,20 +171,18 @@ def build_edition(site, ed, content_root, out, env, statuses):
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(env.get_template(template).render(**common, **ctx), encoding="utf-8")
 
-    if issues:
-        render("issue.html", "index.html", issue=issues[0], recent=issues[1:8],
-               page_url="/", is_home=True)
-    else:
-        render("empty.html", "index.html", page_url="/")
+    # Главная газеты — список всех номеров по порядку, свежий в конце
+    months_asc = [(label, list(reversed(lst))) for label, lst in reversed(months)]
+    render("edition.html", "index.html", months=months_asc, count=len(issues), page_url="/")
     for i in issues:
         render("issue.html", f"issues/{i['slug']}/index.html", issue=i, page_url=i["url"])
-    render("archive.html", "archive/index.html", months=months, page_url="/archive/")
+    # старый адрес архива ведёт на главную газеты
+    render("redirect.html", "archive/index.html", target=base + "/", page_url="/archive/")
     for r in rubrics:
         render("rubric.html", f"rubric/{r['slug']}/index.html", rubric=r,
                items=r["stories"][:80], page_url=f"/rubric/{r['slug']}/")
     render("about.html", "about/index.html", page_url="/about/")
     render("privacy.html", "privacy/index.html", page_url="/privacy/")
-    render("feed.xml", "feed.xml", issues=issues[:30])
     render("sitemap.xml", "sitemap.xml", issues=issues)
     total = sum(i["count"] for i in issues)
     print(f"{base}/: {len(issues)} номеров, {total} материалов")

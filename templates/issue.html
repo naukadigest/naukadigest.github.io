@@ -81,7 +81,7 @@
 
   <nav class="pager" aria-label="Другие номера">
     {% if issue.older %}<a class="pager__prev" href="{{ base }}{{ issue.older.url }}">← №{{ issue.older.number }}, {{ issue.older.date|ru_date(False) }}</a>{% else %}<span></span>{% endif %}
-    <a href="{{ base }}/archive/">Все номера</a>
+    <a href="{{ base }}/">Все номера</a>
     {% if issue.newer %}<a class="pager__next" href="{{ base }}{{ issue.newer.url }}">№{{ issue.newer.number }}, {{ issue.newer.date|ru_date(False) }} →</a>{% else %}<span></span>{% endif %}
   </nav>
 

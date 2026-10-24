@@ -20,7 +20,6 @@
 <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
 <link rel="icon" href="/assets/favicon.png" type="image/png" sizes="64x64">
 <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
-<link rel="alternate" type="application/rss+xml" title="{{ site.name }}" href="{{ base }}/feed.xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Old+Standard+TT:ital,wght@0,400;0,700;1,400&family=PT+Serif:ital,wght@0,400;0,700;1,400&family=PT+Sans+Narrow:wght@400;700&display=swap" rel="stylesheet">
@@ -46,18 +45,18 @@ try { if (localStorage.getItem("nauka_cookies") === "yes") naukaMetrika(); } cat
     <div class="mast__dateline">
       {% block dateline %}
       <span>{{ site.tagline }}</span>
-      {% if latest %}<span><a href="{{ base }}/">Свежий номер — №{{ latest.number }}, {{ latest.date|ru_date(False) }}</a></span>{% endif %}
+      {% if latest %}<span><a href="{{ base }}{{ latest.url }}">Свежий номер — №{{ latest.number }}, {{ latest.date|ru_date(False) }}</a></span>{% endif %}
       {% endblock %}
     </div>
     <div class="mast__title">
       <a href="{{ base }}/">{{ site.name }}</a>
     </div>
     <nav class="mast__nav" aria-label="Разделы">
-      <a href="{{ base }}/" {% if page_url == '/' %}aria-current="page"{% endif %}>Свежий номер</a>
+      <a href="{{ base }}/" {% if page_url == '/' %}aria-current="page"{% endif %}>Все номера</a>
+      {% if latest %}<a href="{{ base }}{{ latest.url }}" {% if page_url == latest.url %}aria-current="page"{% endif %}>Свежий номер</a>{% endif %}
       {% for r in rubrics %}
       <a href="{{ base }}/rubric/{{ r.slug }}/" style="--rc: {{ r.color }}" {% if page_url == '/rubric/' ~ r.slug ~ '/' %}aria-current="page"{% endif %}>{{ r.name }}</a>
       {% endfor %}
-      <a href="{{ base }}/archive/" {% if page_url == '/archive/' %}aria-current="page"{% endif %}>Архив</a>
     </nav>
   </div>
 </header>
@@ -74,8 +73,7 @@ try { if (localStorage.getItem("nauka_cookies") === "yes") naukaMetrika(); } cat
     </div>
     <ul class="foot__links">
       <li><a href="{{ base }}/about/">О газете и принципах отбора</a></li>
-      <li><a href="{{ base }}/archive/">Все номера</a></li>
-      <li><a href="{{ base }}/feed.xml">RSS</a></li>
+      <li><a href="{{ base }}/">Все номера</a></li>
       <li><a href="{{ base }}/privacy/">Политика конфиденциальности</a></li>
     </ul>
     <p class="foot__copy">© {{ year }} {{ site.name }}. Тексты — пересказ с обязательной ссылкой на первоисточник.</p>
