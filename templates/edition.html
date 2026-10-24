@@ -3,7 +3,7 @@
 {% block content %}
 <div class="wrap issues">
   {% if count %}
-  <p class="issues__intro">Все номера газеты по порядку — от первого к сегодняшнему. Нажмите на номер, чтобы открыть его.</p>
+  <p class="issues__intro">Все номера газеты — сверху свежий, ниже предыдущие. Нажмите на номер, чтобы открыть его.</p>
   {% for label, lst in months %}
   <section class="arch">
     <h2 class="arch__month">{{ label }}</h2>

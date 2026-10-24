@@ -171,9 +171,8 @@ def build_edition(site, ed, content_root, out, env, statuses):
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(env.get_template(template).render(**common, **ctx), encoding="utf-8")
 
-    # Главная газеты — список всех номеров по порядку, свежий в конце
-    months_asc = [(label, list(reversed(lst))) for label, lst in reversed(months)]
-    render("edition.html", "index.html", months=months_asc, count=len(issues), page_url="/")
+    # Главная газеты — список всех номеров, свежий сверху, далее по убыванию
+    render("edition.html", "index.html", months=months, count=len(issues), page_url="/")
     for i in issues:
         render("issue.html", f"issues/{i['slug']}/index.html", issue=i, page_url=i["url"])
     # старый адрес архива ведёт на главную газеты

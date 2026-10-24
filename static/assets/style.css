@@ -323,7 +323,7 @@ img { max-width: 100%; height: auto; }
 /* ===== Главная газеты: список номеров ===== */
 .issues { padding-top: 22px; padding-bottom: 30px; }
 .issues__intro { margin: 0 0 6px; color: var(--ink-2); font-style: italic; }
-.arch__list li.is-latest { background: var(--box); border: 2px solid var(--accent); border-bottom-width: 2px; margin-top: 6px; }
+.arch__list li.is-latest { background: var(--box); border: 2px solid var(--accent); border-bottom-width: 2px; margin: 6px 0; }
 .arch__list li.is-latest a { padding-left: 12px; padding-right: 12px; }
 .arch__new {
   display: inline-block; margin-right: 6px; vertical-align: 2px;
