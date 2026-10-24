@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url><loc>{{ site.url }}/</loc><changefreq>daily</changefreq></url>
-  <url><loc>{{ site.url }}/archive/</loc></url>
-  <url><loc>{{ site.url }}/about/</loc></url>
-  {% for r in rubrics %}<url><loc>{{ site.url }}/rubric/{{ r.slug }}/</loc></url>
+  <url><loc>{{ site.url }}{{ base }}/</loc><changefreq>daily</changefreq></url>
+  <url><loc>{{ site.url }}{{ base }}/archive/</loc></url>
+  <url><loc>{{ site.url }}{{ base }}/about/</loc></url>
+  {% for r in rubrics %}<url><loc>{{ site.url }}{{ base }}/rubric/{{ r.slug }}/</loc></url>
   {% endfor %}
-  {% for i in issues %}<url><loc>{{ site.url }}{{ i.url }}</loc><lastmod>{{ i.date }}</lastmod></url>
+  {% for i in issues %}<url><loc>{{ site.url }}{{ base }}{{ i.url }}</loc><lastmod>{{ i.date }}</lastmod></url>
   {% endfor %}
 </urlset>

@@ -9,7 +9,7 @@
     <ul class="arch__list">
       {% for i in lst %}
       <li>
-        <a href="{{ i.url }}">
+        <a href="{{ base }}{{ i.url }}">
           <span class="arch__no">№{{ i.number }}</span>
           <span class="arch__date">{{ i.date|ru_date(False) }}<small>{{ i.date|weekday }}</small></span>
           <span class="arch__hl">{{ i.headline_text|join(' · ') }}</span>

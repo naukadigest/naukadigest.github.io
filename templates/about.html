@@ -4,10 +4,11 @@
 <div class="wrap wrap--text">
   <header class="pagehead"><h1>О газете</h1></header>
   <div class="prose">
+    {% if site.about %}{{ site.about|md }}{% else %}
     <p>«{{ site.name }}» — ежедневная утренняя газета о главном в науке и технологиях. Номер выходит каждое утро около 6:00 по Москве и собирает 14–20 материалов за последние сутки-двое.</p>
     <h2>Рубрики</h2>
     <ul>
-      {% for r in rubrics %}<li><a href="/rubric/{{ r.slug }}/">{{ r.name }}</a></li>{% endfor %}
+      {% for r in rubrics %}<li><a href="{{ base }}/rubric/{{ r.slug }}/">{{ r.name }}</a></li>{% endfor %}
     </ul>
     <h2>Как мы отбираем новости</h2>
     <ul>
@@ -21,6 +22,7 @@
       {% for s in site.statuses %}<span class="badge" style="background: {{ s.color }}">{{ s.name }}</span> {% endfor %}
     </p>
     <p><b>Препринт</b> — работа ещё не прошла рецензирование, выводы могут измениться. <b>Официальный релиз</b> — сообщение самой организации: агентства, компании, проекта.</p>
+    {% endif %}
   </div>
 </div>
 {% endblock %}

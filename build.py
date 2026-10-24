@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Сборка сайта «Научный дайджест»: content/issues/ГГГГ-ММ-ДД.md -> _site/.
+"""Сборка сайта: несколько газет, content/<газета>/ГГГГ-ММ-ДД.md -> _site/<газета>/.
 
 Один файл = один номер газеты. Формат — в README.md.
 Зависимости: pip install markdown pyyaml jinja2
@@ -139,26 +139,21 @@ def read_issue(path, site, rubrics_by_slug, statuses):
     return issue
 
 
-def main():
-    ap = argparse.ArgumentParser()
-    ap.add_argument("--content", default=str(ROOT / "content" / "issues"))
-    ap.add_argument("--out", default=str(ROOT / "_site"))
-    args = ap.parse_args()
-
-    site = yaml.safe_load((ROOT / "site.yml").read_text(encoding="utf-8"))
-    site["url"] = site["url"].rstrip("/")
-    rubrics = site["rubrics"]
+def build_edition(site, ed, content_root, out, env, statuses):
+    """Одна газета: content/<slug>/*.md -> _site/<slug>/."""
+    cfg = dict(site, **{k: v for k, v in ed.items() if k != "rubrics"})
+    rubrics = [dict(r) for r in ed["rubrics"]]
+    cfg["rubrics"] = rubrics
     rubrics_by_slug = {r["slug"]: r for r in rubrics}
-    statuses = {s["name"]: s["color"] for s in site["statuses"]}
+    base = "/" + ed["slug"]
 
-    issues = [read_issue(p, site, rubrics_by_slug, statuses)
-              for p in sorted(Path(args.content).glob("*.md"))]
+    src = content_root / ed["slug"]
+    issues = [read_issue(p, cfg, rubrics_by_slug, statuses) for p in sorted(src.glob("*.md"))]
     issues = [i for i in issues if not i["draft"]]
     issues.sort(key=lambda i: i["date"], reverse=True)
     for k, i in enumerate(issues):
         i["newer"] = issues[k - 1] if k > 0 else None
         i["older"] = issues[k + 1] if k + 1 < len(issues) else None
-
     for r in rubrics:
         r["stories"] = [x for i in issues for x in i["items"] if x["rubric"] == r["slug"]]
 
@@ -167,26 +162,13 @@ def main():
         by_month.setdefault((i["date"].year, i["date"].month), []).append(i)
     months = [(f"{MONTHS_NOM[m - 1]} {y}", lst) for (y, m), lst in by_month.items()]
 
-    env = Environment(loader=FileSystemLoader(str(ROOT / "templates")),
-                      autoescape=select_autoescape(["html", "xml"]),
-                      trim_blocks=True, lstrip_blocks=True)
-    env.filters["ru_date"] = ru_date
-    env.filters["weekday"] = lambda d: WEEKDAYS[to_date(d).weekday()]
-    env.filters["rfc822"] = lambda d: dt.datetime.combine(to_date(d), dt.time(6, 0)).strftime(
-        "%a, %d %b %Y %H:%M:%S +0300")
-    env.filters["plural"] = plural
-    env.globals.update(site=site, rubrics=rubrics, year=dt.date.today().year,
-                       latest=issues[0] if issues else None)
-
-    out = Path(args.out)
-    if out.exists():
-        shutil.rmtree(out)
-    out.mkdir(parents=True)
+    common = dict(site=cfg, rubrics=rubrics, base=base, latest=issues[0] if issues else None)
+    dest_root = out / ed["slug"]
 
     def render(template, dest, **ctx):
-        path = out / dest
+        path = dest_root / dest
         path.parent.mkdir(parents=True, exist_ok=True)
-        path.write_text(env.get_template(template).render(**ctx), encoding="utf-8")
+        path.write_text(env.get_template(template).render(**common, **ctx), encoding="utf-8")
 
     if issues:
         render("issue.html", "index.html", issue=issues[0], recent=issues[1:8],
@@ -201,17 +183,51 @@ def main():
                items=r["stories"][:80], page_url=f"/rubric/{r['slug']}/")
     render("about.html", "about/index.html", page_url="/about/")
     render("privacy.html", "privacy/index.html", page_url="/privacy/")
-    render("404.html", "404.html", page_url="/404.html")
     render("feed.xml", "feed.xml", issues=issues[:30])
     render("sitemap.xml", "sitemap.xml", issues=issues)
-    render("robots.txt", "robots.txt")
+    total = sum(i["count"] for i in issues)
+    print(f"{base}/: {len(issues)} номеров, {total} материалов")
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--content", default=str(ROOT / "content"))
+    ap.add_argument("--out", default=str(ROOT / "_site"))
+    args = ap.parse_args()
+
+    site = yaml.safe_load((ROOT / "site.yml").read_text(encoding="utf-8"))
+    site["url"] = site["url"].rstrip("/")
+    statuses = {s["name"]: s["color"] for s in site["statuses"]}
+
+    env = Environment(loader=FileSystemLoader(str(ROOT / "templates")),
+                      autoescape=select_autoescape(["html", "xml"]),
+                      trim_blocks=True, lstrip_blocks=True)
+    env.filters["ru_date"] = ru_date
+    env.filters["weekday"] = lambda d: WEEKDAYS[to_date(d).weekday()]
+    env.filters["rfc822"] = lambda d: dt.datetime.combine(to_date(d), dt.time(6, 0)).strftime(
+        "%a, %d %b %Y %H:%M:%S +0300")
+    env.filters["plural"] = plural
+    env.filters["md"] = md
+    env.globals.update(year=dt.date.today().year)
+
+    out = Path(args.out)
+    if out.exists():
+        shutil.rmtree(out)
+    out.mkdir(parents=True)
+
+    for ed in site["editions"]:
+        build_edition(site, ed, Path(args.content), out, env, statuses)
+
+    # Корень сайта: пустая страница, общая 404 и robots.txt
+    for name in ("index.html", "404.html", "robots.txt"):
+        (out / name).write_text(env.get_template("root/" + name).render(
+            site=site, editions=site["editions"]), encoding="utf-8")
 
     shutil.copytree(ROOT / "static", out, dirs_exist_ok=True)
     (out / ".nojekyll").write_text("")
     if site.get("domain"):
         (out / "CNAME").write_text(site["domain"].strip() + "\n")
-    total = sum(i["count"] for i in issues)
-    print(f"Собрано: {len(issues)} номеров, {total} материалов -> {out}")
+    print(f"Готово -> {out}")
 
 
 if __name__ == "__main__":

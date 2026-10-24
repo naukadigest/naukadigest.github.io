@@ -9,7 +9,7 @@
   <div class="rlist">
     {% for n in items %}
     <article class="story story--row">
-      <p class="story__issue"><a href="{{ n.issue.url }}#{{ n.anchor }}">№{{ n.issue.number }} · {{ n.issue.date|ru_date }}</a></p>
+      <p class="story__issue"><a href="{{ base }}{{ n.issue.url }}#{{ n.anchor }}">№{{ n.issue.number }} · {{ n.issue.date|ru_date }}</a></p>
       <h2 class="story__title">{{ n.title_html }}</h2>
       <div class="story__text">{{ n.text_html }}</div>
       <p class="story__meta">

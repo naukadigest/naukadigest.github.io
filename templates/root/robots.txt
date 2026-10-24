@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+{% for ed in editions %}Sitemap: {{ site.url }}/{{ ed.slug }}/sitemap.xml
+{% endfor %}
