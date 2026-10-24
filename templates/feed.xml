@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+<channel>
+  <title>{{ site.name }}</title>
+  <link>{{ site.url }}/</link>
+  <description>{{ site.description }}</description>
+  <language>ru</language>
+  <atom:link href="{{ site.url }}/feed.xml" rel="self" type="application/rss+xml"/>
+  {% for i in issues %}
+  <item>
+    <title>№{{ i.number }} · {{ i.date|ru_date }}</title>
+    <link>{{ site.url }}{{ i.url }}</link>
+    <guid isPermaLink="true">{{ site.url }}{{ i.url }}</guid>
+    <pubDate>{{ i.date|rfc822 }}</pubDate>
+    <description>{{ i.headline_text|join(' ') }}</description>
+  </item>
+  {% endfor %}
+</channel>
+</rss>

@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+{% set full_title = (page_title ~ ' — ' ~ site.name) if page_title else (site.name ~ ' — ' ~ site.tagline) %}
+<title>{{ full_title }}</title>
+<meta name="description" content="{{ page_description or site.description }}">
+<link rel="canonical" href="{{ site.url }}{{ page_url }}">
+<meta property="og:site_name" content="{{ site.name }}">
+<meta property="og:locale" content="ru_RU">
+<meta property="og:type" content="{{ og_type or 'website' }}">
+<meta property="og:title" content="{{ page_title or site.name }}">
+<meta property="og:description" content="{{ page_description or site.description }}">
+<meta property="og:url" content="{{ site.url }}{{ page_url }}">
+<meta property="og:image" content="{{ site.url }}/assets/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#f6f1e6" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#16140f" media="(prefers-color-scheme: dark)">
+<link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/assets/favicon.png" type="image/png" sizes="64x64">
+<link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+<link rel="alternate" type="application/rss+xml" title="{{ site.name }}" href="/feed.xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Old+Standard+TT:ital,wght@0,400;0,700;1,400&family=PT+Serif:ital,wght@0,400;0,700;1,400&family=PT+Sans+Narrow:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/style.css">
+{% if site.yandex_metrika_id %}
+<script type="text/javascript">
+function naukaMetrika(){
+(function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+m[i].l=1*new Date();
+for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
+k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
+(window, document, "script", "https://mc.yandex.ru/metrika/tag.js?id={{ site.yandex_metrika_id }}", "ym");
+ym({{ site.yandex_metrika_id }}, "init", {ssr:true, webvisor:true, clickmap:true, referrer: document.referrer, url: location.href, accurateTrackBounce:true, trackLinks:true});
+}
+try { if (localStorage.getItem("nauka_cookies") === "yes") naukaMetrika(); } catch (e) {}
+</script>
+{% endif %}
+</head>
+<body>
+<a class="skip" href="#main">Перейти к содержанию</a>
+<header class="mast{% if not is_issue %} mast--compact{% endif %}">
+  <div class="wrap">
+    <div class="mast__dateline">
+      {% block dateline %}
+      <span>{{ site.tagline }}</span>
+      {% if latest %}<span><a href="/">Свежий номер — №{{ latest.number }}, {{ latest.date|ru_date(False) }}</a></span>{% endif %}
+      {% endblock %}
+    </div>
+    <div class="mast__title">
+      <a href="/">{{ site.name }}</a>
+    </div>
+    <nav class="mast__nav" aria-label="Разделы">
+      <a href="/" {% if page_url == '/' %}aria-current="page"{% endif %}>Свежий номер</a>
+      {% for r in rubrics %}
+      <a href="/rubric/{{ r.slug }}/" style="--rc: {{ r.color }}" {% if page_url == '/rubric/' ~ r.slug ~ '/' %}aria-current="page"{% endif %}>{{ r.name }}</a>
+      {% endfor %}
+      <a href="/archive/" {% if page_url == '/archive/' %}aria-current="page"{% endif %}>Архив</a>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+{% block content %}{% endblock %}
+</main>
+
+<footer class="foot">
+  <div class="wrap foot__row">
+    <div>
+      <p class="foot__name">{{ site.name }}</p>
+      <p>{{ site.description }}</p>
+    </div>
+    <ul class="foot__links">
+      <li><a href="/about/">О газете и принципах отбора</a></li>
+      <li><a href="/archive/">Все номера</a></li>
+      <li><a href="/feed.xml">RSS</a></li>
+      <li><a href="/privacy/">Политика конфиденциальности</a></li>
+    </ul>
+    <p class="foot__copy">© {{ year }} {{ site.name }}. Тексты — пересказ с обязательной ссылкой на первоисточник.</p>
+  </div>
+</footer>
+{% if site.yandex_metrika_id %}
+<div class="cookie" id="cookie" hidden>
+  <p>Мы используем cookie и Яндекс Метрику, чтобы понимать, какие материалы читают. Подробнее — в <a href="/privacy/">политике конфиденциальности</a>.</p>
+  <div class="cookie__btns">
+    <button type="button" class="cookie__ok" data-v="yes">Принять</button>
+    <button type="button" class="cookie__no" data-v="no">Отказаться</button>
+  </div>
+</div>
+<script>
+(function(){
+  var b=document.getElementById("cookie"), v=null;
+  try { v=localStorage.getItem("nauka_cookies"); } catch(e) {}
+  if (!v) b.hidden=false;
+  b.addEventListener("click", function(ev){
+    var c=ev.target.getAttribute("data-v"); if(!c) return;
+    try { localStorage.setItem("nauka_cookies", c); } catch(e) {}
+    b.hidden=true;
+    if (c==="yes" && window.naukaMetrika) naukaMetrika();
+  });
+})();
+</script>
+{% endif %}
+</body>
+</html>

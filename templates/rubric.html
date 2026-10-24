@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% set page_title = rubric.name %}
+{% block content %}
+<div class="wrap" style="--rc: {{ rubric.color }}">
+  <header class="pagehead">
+    <h1 class="rub__bar rub__bar--h1">{{ rubric.name }}</h1>
+  </header>
+  {% if items %}
+  <div class="rlist">
+    {% for n in items %}
+    <article class="story story--row">
+      <p class="story__issue"><a href="{{ n.issue.url }}#{{ n.anchor }}">№{{ n.issue.number }} · {{ n.issue.date|ru_date }}</a></p>
+      <h2 class="story__title">{{ n.title_html }}</h2>
+      <div class="story__text">{{ n.text_html }}</div>
+      <p class="story__meta">
+        {% if n.status %}<span class="badge" style="background: {{ n.status_color }}">{{ n.status }}</span>{% endif %}
+        {% if n.url %}<span>Источник: <a href="{{ n.url }}" rel="noopener" target="_blank">{{ n.source or n.url }}</a></span>{% endif %}
+        {% for a in n.also or [] %}<span>· <a href="{{ a.url }}" rel="noopener" target="_blank">{{ a.title }}</a></span>{% endfor %}
+          {% if n.doi %}<span>DOI: <a href="https://doi.org/{{ n.doi }}" rel="noopener" target="_blank">{{ n.doi }}</a></span>{% endif %}
+      </p>
+    </article>
+    {% endfor %}
+  </div>
+  {% else %}
+  <p>В этой рубрике пока нет материалов.</p>
+  {% endif %}
+</div>
+{% endblock %}

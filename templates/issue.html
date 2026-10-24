@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+{% set is_issue = true %}
+{% if not is_home %}{% set page_title = '№' ~ issue.number ~ ' · ' ~ (issue.date|ru_date) %}{% endif %}
+{% set page_description = issue.headline_text|join(' ') %}
+{% set og_type = 'article' %}
+{% block dateline %}
+<span>№&nbsp;{{ issue.number }}</span>
+<span class="mast__date">{{ issue.date|weekday|capitalize }}, {{ issue.date|ru_date }}</span>
+<span>{{ issue.count }} {{ issue.count|plural('материал', 'материала', 'материалов') }}</span>
+{% endblock %}
+{% block content %}
+<article class="wrap issue">
+
+  <section class="front">
+    <div class="front__main">
+      <h1 class="kicker">Главное за сутки</h1>
+      <ol class="headline">
+        {% for h in issue.headline %}<li>{{ h }}</li>{% endfor %}
+      </ol>
+      {% if issue.editorial %}<div class="editorial">{{ issue.editorial }}</div>{% endif %}
+    </div>
+    <aside class="front__toc" aria-label="В номере">
+      <h2 class="kicker kicker--plain">В номере</h2>
+      <ul>
+        {% for s in issue.sections %}
+        <li style="--rc: {{ s.rubric.color }}">
+          <a href="#{{ s.rubric.slug }}">{{ s.rubric.name }}</a>
+          <span>{{ s.stories|length or '—' }}</span>
+        </li>
+        {% endfor %}
+      </ul>
+    </aside>
+  </section>
+
+  {% for s in issue.sections %}
+  <section class="rub{% if loop.first %} rub--first{% endif %}" id="{{ s.rubric.slug }}" style="--rc: {{ s.rubric.color }}">
+    <h2 class="rub__bar"><a href="/rubric/{{ s.rubric.slug }}/">{{ s.rubric.name }}</a></h2>
+    {% if s.stories %}
+    <div class="cols cols--{{ [s.stories|length, 3]|min }}">
+      {% for n in s.stories %}
+      <div class="story" id="{{ n.anchor }}">
+        <h3 class="story__title">{{ n.title_html }}</h3>
+        <div class="story__text">{{ n.text_html }}</div>
+        <p class="story__meta">
+          {% if n.status %}<span class="badge" style="background: {{ n.status_color }}">{{ n.status }}</span>{% endif %}
+          {% if n.url %}<span>Источник: <a href="{{ n.url }}" rel="noopener" target="_blank">{{ n.source or n.url }}</a></span>{% elif n.source %}<span>Источник: {{ n.source }}</span>{% endif %}
+          {% for a in n.also or [] %}<span>· <a href="{{ a.url }}" rel="noopener" target="_blank">{{ a.title }}</a></span>{% endfor %}
+          {% if n.doi %}<span>DOI: <a href="https://doi.org/{{ n.doi }}" rel="noopener" target="_blank">{{ n.doi }}</a></span>{% endif %}
+          {% if n.dates %}<span class="story__dates">{{ n.dates }}</span>{% endif %}
+        </p>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <p class="rub__empty">{{ s.empty_note }}</p>
+    {% endif %}
+  </section>
+  {% endfor %}
+
+  {% if issue.figure or issue.further %}
+  <section class="tail">
+    {% if issue.figure %}
+    <div class="figure">
+      <h2 class="kicker">Цифра дня</h2>
+      <p class="figure__value">{{ issue.figure.value }}</p>
+      <p class="figure__text">{{ issue.figure.text_html }}</p>
+    </div>
+    {% endif %}
+    {% if issue.further %}
+    <div class="further">
+      <h2 class="kicker">Почитать глубже</h2>
+      <ul>
+        {% for f in issue.further %}
+        <li><a href="{{ f.url }}" rel="noopener" target="_blank">{{ f.title }}</a>{% if f.note %} — {{ f.note }}{% endif %}</li>
+        {% endfor %}
+      </ul>
+    </div>
+    {% endif %}
+  </section>
+  {% endif %}
+
+  <nav class="pager" aria-label="Другие номера">
+    {% if issue.older %}<a class="pager__prev" href="{{ issue.older.url }}">← №{{ issue.older.number }}, {{ issue.older.date|ru_date(False) }}</a>{% else %}<span></span>{% endif %}
+    <a href="/archive/">Все номера</a>
+    {% if issue.newer %}<a class="pager__next" href="{{ issue.newer.url }}">№{{ issue.newer.number }}, {{ issue.newer.date|ru_date(False) }} →</a>{% else %}<span></span>{% endif %}
+  </nav>
+
+  {% if is_home and recent %}
+  <section class="recent">
+    <h2 class="kicker kicker--plain">Предыдущие номера</h2>
+    <ul class="recent__list">
+      {% for i in recent %}
+      <li>
+        <a href="{{ i.url }}">
+          <span class="recent__no">№{{ i.number }}</span>
+          <span class="recent__date">{{ i.date|ru_date(False) }}, {{ i.date|weekday }}</span>
+          {% if i.headline_text %}<span class="recent__hl">{{ i.headline_text[0] }}</span>{% endif %}
+        </a>
+      </li>
+      {% endfor %}
+    </ul>
+  </section>
+  {% endif %}
+</article>
+{% endblock %}
