@@ -21,6 +21,10 @@ statuses:
     color: "#ef6c00"
   - name: Официальный релиз
     color: "#1565c0"
+  - name: Научная журналистика
+    color: "#546e7a"
+  - name: Сообщение агентства
+    color: "#6d4c41"
 
 editions:
   - slug: ilnaz
